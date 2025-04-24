@@ -78,4 +78,19 @@ public class PostgreSQLService : IPostgreSQLService
         var configList = await client.Configurations.ListByServerAsync(resourceGroupName: tenantId, serverName: serverName);
         return string.Join(";", configList.Select(config => $"{config.Name}={config.Value}"));
     }
+
+    public async Task<string> GetServerParameterAsync(string subscriptionId, string resourceGroup, string serverName, string parameterName, string? tenantId = null)
+    {
+        var credentials = new DefaultAzureCredential();
+        var token = await credentials.GetTokenAsync(new TokenRequestContext(new[] { "https://management.azure.com/.default" }));
+        var creds = new Microsoft.Rest.TokenCredentials(token.Token);
+
+        using var client = new PostgreSQLManagementClient(creds)
+        {
+            SubscriptionId = subscriptionId
+        };
+
+        var parameter = await client.Configurations.GetAsync(resourceGroup, serverName, parameterName);
+        return parameter?.Value ?? string.Empty;
+    }
 }

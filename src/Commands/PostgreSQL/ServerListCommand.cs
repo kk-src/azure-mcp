@@ -6,7 +6,7 @@ using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 using ModelContextProtocol.Server;
 
-namespace AzureMcp.Commands.PostgreSQL;
+namespace AzureMcp.Commands.PostgreSQL.Server;
 
 public sealed class ServerListCommand : GlobalCommand<ServerListArguments>
 {

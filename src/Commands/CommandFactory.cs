@@ -241,9 +241,9 @@ public class CommandFactory
 
         database.AddCommand("query", new PostgreSQL.DatabaseQueryCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
 
-        server.AddCommand("list", new PostgreSQL.ServerListCommand());
-        server.AddCommand("get-config", new PostgreSQL.GetConfigCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-        
+        server.AddCommand("list", new PostgreSQL.Server.ServerListCommand());
+        server.AddCommand("get-config", new PostgreSQL.Server.GetConfigCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+        server.AddCommand("get-param", new PostgreSQL.Server.GetParamCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
     }
 
     private void ConfigureCommands(CommandGroup group)

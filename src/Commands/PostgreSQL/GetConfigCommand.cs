@@ -4,7 +4,7 @@ using AzureMcp.Arguments.PostgreSQL;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 
-namespace AzureMcp.Commands.PostgreSQL;
+namespace AzureMcp.Commands.PostgreSQL.Server;
 
 public sealed class GetConfigCommand : SubscriptionCommand<GetConfigArguments>
 {

@@ -18,4 +18,14 @@ public interface IPostgreSQLService
     Task<List<string>> ListDatabasesAsync();
     Task<string> ExecuteQueryAsync(string server, string user, string query);
     Task<string> GetServerConfigAsync(string serverName, string subscriptionId, string? tenantId = null);
+    /// <summary>
+    /// Retrieves a specific parameter of a PostgreSQL server.
+    /// </summary>
+    /// <param name="subscriptionId">The subscription ID.</param>
+    /// <param name="resourceGroup">The resource group name.</param>
+    /// <param name="serverName">The server name.</param>
+    /// <param name="parameterName">The parameter name.</param>
+    /// <param name="tenantId">Optional tenant ID for cross-tenant operations.</param>
+    /// <returns>The value of the specified parameter.</returns>
+    Task<string> GetServerParameterAsync(string subscriptionId, string resourceGroup, string serverName, string parameterName, string? tenantId = null);
 }
