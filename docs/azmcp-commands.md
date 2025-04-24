@@ -136,6 +136,12 @@ azmcp extension az --command "storage account show --name <account-name> --resou
 azmcp extension az --command "vm list --resource-group <resource-group>"
 ```
 
+### PostgreSQL Operations
+```bash
+# Execute a query on a PostgreSQL database
+azmcp pg database query --subscription <subscription> --server <server-name> --user <username> --query <sql-query>
+```
+
 ## Response Format
 
 All responses follow a consistent JSON format:

@@ -32,4 +32,15 @@ public class PostgreSQLService : IPostgreSQLService
 
         return databases;
     }
+
+    public async Task<string> ExecuteQueryAsync(string server, string user, string query)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var command = new NpgsqlCommand(query, connection);
+        var result = await command.ExecuteScalarAsync();
+
+        return result?.ToString() ?? string.Empty;
+    }
 }
