@@ -233,10 +233,15 @@ public class CommandFactory
 
         var database = new CommandGroup("database", "PostgreSQL database operations");
         pg.AddSubGroup(database);
-        
+
+        var server = new CommandGroup("server", "PostgreSQL server operations");
+        pg.AddSubGroup(server);
+
         database.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
 
         database.AddCommand("query", new PostgreSQL.DatabaseQueryCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+
+        server.AddCommand("list", new PostgreSQL.ServerListCommand());
     }
 
     private void ConfigureCommands(CommandGroup group)

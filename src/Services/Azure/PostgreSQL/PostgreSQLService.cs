@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Core;
+using Azure.Identity;
+using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
 using AzureMcp.Services.Interfaces;
+using Microsoft.Azure.Management.PostgreSQL.FlexibleServers;
 using Npgsql;
 
 namespace AzureMcp.Services.Azure.PostgreSQL;
@@ -42,5 +47,20 @@ public class PostgreSQLService : IPostgreSQLService
         var result = await command.ExecuteScalarAsync();
 
         return result?.ToString() ?? string.Empty;
+    }
+
+    public async Task<List<string>> ListPostgreSqlServersAsync(string subscriptionId, string? tenantId = null)
+    {
+        var credentials = new DefaultAzureCredential();
+        var token = await credentials.GetTokenAsync(new TokenRequestContext(new[] { "https://management.azure.com/.default" }));
+        var creds = new Microsoft.Rest.TokenCredentials(token.Token);
+
+        using var client = new Microsoft.Azure.Management.PostgreSQL.FlexibleServers.PostgreSQLManagementClient(creds)
+        {
+            SubscriptionId = subscriptionId
+        };
+
+        var serverList = await client.Servers.ListAsync();
+        return [.. serverList.Select(server => server.Name)];
     }
 }
