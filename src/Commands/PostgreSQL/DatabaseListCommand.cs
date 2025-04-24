@@ -11,14 +11,14 @@ public sealed class DatabaseListCommand : SubscriptionCommand<DatabaseListArgume
 {
     private readonly IPostgreSQLService _postgresqlService;
 
-    public DatabaseListCommand(IPostgreSQLService postgresqlService)
+    public DatabaseListCommand(IPostgreSQLService postgresqlService) : base()
     {
         _postgresqlService = postgresqlService;
     }
 
     protected override string GetCommandName() => "list";
 
-    protected override string GetCommandDescription() => "Lists all PostgreSQL databases.";
+    protected override string GetCommandDescription() => "Lists all databases in the specified PostgreSQL server.";
 
     protected override void RegisterArguments()
     {
@@ -26,17 +26,15 @@ public sealed class DatabaseListCommand : SubscriptionCommand<DatabaseListArgume
         AddArgument(ArgumentBuilder<DatabaseListArguments>
             .Create("resource-group", "The name of the resource group.")
             .WithValueAccessor(args => args.ResourceGroup ?? string.Empty)
-            .WithIsRequired(false));
-
+            .WithIsRequired(true));
         AddArgument(ArgumentBuilder<DatabaseListArguments>
             .Create("server", "The name of the PostgreSQL server.")
             .WithValueAccessor(args => args.Server ?? string.Empty)
-            .WithIsRequired(false));
-
+            .WithIsRequired(true));
         AddArgument(ArgumentBuilder<DatabaseListArguments>
             .Create("user", "The username for the PostgreSQL server.")
             .WithValueAccessor(args => args.User ?? string.Empty)
-            .WithIsRequired(false));
+            .WithIsRequired(true));
     }
 
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using AzureMcp.Commands.Cosmos;
+using AzureMcp.Commands.PostgreSQL;
 using AzureMcp.Commands.Server;
 using AzureMcp.Commands.Storage.Blob;
 using AzureMcp.Commands.Subscription;
@@ -90,8 +91,7 @@ public class CommandFactory
         var cosmosItem = new CommandGroup("item", "Cosmos DB item operations - Commands for querying, creating, updating, and deleting document within your Cosmos DB containers.");
         cosmosContainer.AddSubGroup(cosmosItem);
 
-        // Register Cosmos commands
-        databases.AddCommand("list", new DatabaseListCommand(GetLogger<DatabaseListCommand>()));
+        // Register Cosmos commands        
         cosmosContainer.AddCommand("list", new Cosmos.ContainerListCommand(GetLogger<Cosmos.ContainerListCommand>()));
         cosmosAccount.AddCommand("list", new Cosmos.AccountListCommand(GetLogger<Cosmos.AccountListCommand>()));
         cosmosItem.AddCommand("query", new ItemQueryCommand(GetLogger<ItemQueryCommand>()));
@@ -228,10 +228,13 @@ public class CommandFactory
 
     private void RegisterPostgreSQLCommands()
     {
-        var postgresql = new CommandGroup("pg", "PostgreSQL operations");
-        _rootGroup.AddSubGroup(postgresql);
+        var pg = new CommandGroup("pg", "PostgreSQL operations");
+        _rootGroup.AddSubGroup(pg);
+        
+        var database = new CommandGroup("database", "PostgreSQL database operations");
+        pg.AddSubGroup(database);
 
-        postgresql.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+        database.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
     }
 
     private void ConfigureCommands(CommandGroup group)
