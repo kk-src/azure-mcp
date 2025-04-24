@@ -7,6 +7,7 @@ using AzureMcp.Commands.Storage.Blob;
 using AzureMcp.Commands.Subscription;
 using AzureMcp.Models;
 using AzureMcp.Models.Command;
+using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
@@ -65,7 +66,8 @@ public class CommandFactory
         RegisterExtensionCommands();
         RegisterSubscriptionCommands();
         RegisterGroupCommands();
-        RegisterMcpServerCommands();
+        RegisterPostgreSQLCommands();
+        RegisterMcpServerCommands();        
     }
 
     private void RegisterCosmosCommands()
@@ -222,6 +224,14 @@ public class CommandFactory
         var startServer = new ServiceStartCommand(_serviceProvider);
         mcpServer.AddCommand("start", startServer);
 
+    }
+
+    private void RegisterPostgreSQLCommands()
+    {
+        var postgresql = new CommandGroup("postgresql", "PostgreSQL operations");
+        _rootGroup.AddSubGroup(postgresql);
+
+        postgresql.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
     }
 
     private void ConfigureCommands(CommandGroup group)
