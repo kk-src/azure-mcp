@@ -228,7 +228,7 @@ public class CommandFactory
 
     private void RegisterPostgreSQLCommands()
     {
-        var postgresql = new CommandGroup("postgresql", "PostgreSQL operations");
+        var postgresql = new CommandGroup("pg", "PostgreSQL operations");
         _rootGroup.AddSubGroup(postgresql);
 
         postgresql.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
