@@ -28,4 +28,13 @@ public interface IPostgreSQLService
     /// <param name="tenantId">Optional tenant ID for cross-tenant operations.</param>
     /// <returns>The value of the specified parameter.</returns>
     Task<string> GetServerParameterAsync(string subscriptionId, string resourceGroup, string serverName, string parameterName, string? tenantId = null);
+
+    /// <summary>
+    /// Lists all tables in a specified PostgreSQL database.
+    /// </summary>
+    /// <param name="server">The server name.</param>
+    /// <param name="databaseName">The database name.</param>
+    /// <param name="user">The user name for authentication.</param>
+    /// <returns>A list of table names.</returns>
+    Task<List<string>> ListTablesAsync(string server, string databaseName, string user);
 }

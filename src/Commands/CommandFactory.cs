@@ -244,6 +244,11 @@ public class CommandFactory
         server.AddCommand("list", new PostgreSQL.Server.ServerListCommand());
         server.AddCommand("get-config", new PostgreSQL.Server.GetConfigCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
         server.AddCommand("get-param", new PostgreSQL.Server.GetParamCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+
+        var table = new CommandGroup("table", "PostgreSQL table operations");
+        database.AddSubGroup(table);
+
+        table.AddCommand("list", new PostgreSQL.TableListCommand());
     }
 
     private void ConfigureCommands(CommandGroup group)

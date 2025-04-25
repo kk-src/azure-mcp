@@ -93,4 +93,24 @@ public class PostgreSQLService : IPostgreSQLService
         var parameter = await client.Configurations.GetAsync(resourceGroup, serverName, parameterName);
         return parameter?.Value ?? string.Empty;
     }
+
+    public async Task<List<string>> ListTablesAsync(string server, string databaseName, string user)
+    {
+        var tables = new List<string>();
+        var connectionString = $"Host={server};Database={databaseName};Username={user};";
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';";
+        await using var command = new NpgsqlCommand(query, connection);
+        await using var reader = await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            tables.Add(reader.GetString(0));
+        }
+
+        return tables;
+    }
 }
