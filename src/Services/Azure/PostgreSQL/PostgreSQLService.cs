@@ -8,6 +8,7 @@ using Azure.ResourceManager.Resources;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Azure.Management.PostgreSQL.FlexibleServers;
 using Npgsql;
+using System.Text.Json;
 
 namespace AzureMcp.Services.Azure.PostgreSQL;
 
@@ -112,5 +113,30 @@ public class PostgreSQLService : IPostgreSQLService
         }
 
         return tables;
+    }
+
+    public async Task<string> GetTableSchemaAsync(string server, string databaseName, string tableName, string user)
+    {
+        var connectionString = $"Host={server};Database={databaseName};Username={user};";
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var query = $"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{tableName}';";
+        await using var command = new NpgsqlCommand(query, connection);
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var schema = new List<Dictionary<string, string>>();
+
+        while (await reader.ReadAsync())
+        {
+            schema.Add(new Dictionary<string, string>
+            {
+                { "column_name", reader.GetString(0) },
+                { "data_type", reader.GetString(1) }
+            });
+        }
+
+        return JsonSerializer.Serialize(schema);
     }
 }

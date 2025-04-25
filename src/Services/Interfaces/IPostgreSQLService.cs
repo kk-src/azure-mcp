@@ -37,4 +37,14 @@ public interface IPostgreSQLService
     /// <param name="user">The user name for authentication.</param>
     /// <returns>A list of table names.</returns>
     Task<List<string>> ListTablesAsync(string server, string databaseName, string user);
+
+    /// <summary>
+    /// Retrieves the schema of a specified table in a PostgreSQL database.
+    /// </summary>
+    /// <param name="server">The server name.</param>
+    /// <param name="databaseName">The database name.</param>
+    /// <param name="tableName">The table name.</param>
+    /// <param name="user">The user name for authentication.</param>
+    /// <returns>The schema of the specified table as a JSON string.</returns>
+    Task<string> GetTableSchemaAsync(string server, string databaseName, string tableName, string user);
 }

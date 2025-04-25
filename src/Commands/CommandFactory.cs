@@ -248,7 +248,8 @@ public class CommandFactory
         var table = new CommandGroup("table", "PostgreSQL table operations");
         database.AddSubGroup(table);
 
-        table.AddCommand("list", new PostgreSQL.TableListCommand());
+        table.AddCommand("list", new PostgreSQL.TableListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+        table.AddCommand("get-schema", new PostgreSQL.Table.GetSchemaCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
     }
 
     private void ConfigureCommands(CommandGroup group)
