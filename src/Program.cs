@@ -7,7 +7,7 @@ using AzureMcp.Models.Command;
 using AzureMcp.Services.Azure.AppConfig;
 using AzureMcp.Services.Azure.Cosmos;
 using AzureMcp.Services.Azure.Monitor;
-using AzureMcp.Services.Azure.PostgreSQL;
+using AzureMcp.Services.Azure.Postgres;
 using AzureMcp.Services.Azure.ResourceGroup;
 using AzureMcp.Services.Azure.Storage;
 using AzureMcp.Services.Azure.Subscription;
@@ -63,6 +63,6 @@ static void ConfigureServices(IServiceCollection services)
     services.AddSingleton<IMonitorService, MonitorService>();
     services.AddSingleton<IResourceGroupService, ResourceGroupService>();
     services.AddSingleton<IAppConfigService, AppConfigService>();
-    services.AddSingleton<IPostgreSQLService, PostgreSQLService>();
+    services.AddSingleton<IPostgresService, PostgresService>();
     services.AddSingleton<CommandFactory>();
 }

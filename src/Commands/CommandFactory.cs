@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using AzureMcp.Commands.Cosmos;
-using AzureMcp.Commands.PostgreSQL;
 using AzureMcp.Commands.Server;
 using AzureMcp.Commands.Storage.Blob;
 using AzureMcp.Commands.Subscription;
+using AzureMcp.Commands.Postgres;
 using AzureMcp.Models;
 using AzureMcp.Models.Command;
-using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
@@ -67,7 +66,7 @@ public class CommandFactory
         RegisterExtensionCommands();
         RegisterSubscriptionCommands();
         RegisterGroupCommands();
-        RegisterPostgreSQLCommands();
+        RegisterPostgresCommands();
         RegisterMcpServerCommands();        
     }
 
@@ -226,30 +225,26 @@ public class CommandFactory
 
     }
 
-    private void RegisterPostgreSQLCommands()
+    private void RegisterPostgresCommands()
     {
         var pg = new CommandGroup("pg", "PostgreSQL operations");
         _rootGroup.AddSubGroup(pg);
-
+       
         var database = new CommandGroup("database", "PostgreSQL database operations");
         pg.AddSubGroup(database);
+        database.AddCommand("list", new Postgres.Database.DatabaseListCommand(GetLogger<Postgres.Database.DatabaseListCommand>()));
+        database.AddCommand("query", new Postgres.Database.DatabaseQueryCommand(GetLogger<Postgres.Database.DatabaseQueryCommand>()));
+        
+        var table = new CommandGroup("table", "PostgreSQL table operations");
+        pg.AddSubGroup(table);
+        table.AddCommand("list", new Postgres.Table.TableListCommand(GetLogger<Postgres.Table.TableListCommand>()));        
+        table.AddCommand("get-schema", new Postgres.Table.GetSchemaCommand(GetLogger<Postgres.Table.GetSchemaCommand>()));
 
         var server = new CommandGroup("server", "PostgreSQL server operations");
         pg.AddSubGroup(server);
-
-        database.AddCommand("list", new PostgreSQL.DatabaseListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-
-        database.AddCommand("query", new PostgreSQL.DatabaseQueryCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-
-        server.AddCommand("list", new PostgreSQL.Server.ServerListCommand());
-        server.AddCommand("get-config", new PostgreSQL.Server.GetConfigCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-        server.AddCommand("get-param", new PostgreSQL.Server.GetParamCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-
-        var table = new CommandGroup("table", "PostgreSQL table operations");
-        database.AddSubGroup(table);
-
-        table.AddCommand("list", new PostgreSQL.TableListCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
-        table.AddCommand("get-schema", new PostgreSQL.Table.GetSchemaCommand(_serviceProvider.GetRequiredService<IPostgreSQLService>()));
+        server.AddCommand("list", new Postgres.Server.ServerListCommand(GetLogger<Postgres.Server.ServerListCommand>()));
+        server.AddCommand("get-config", new Postgres.Server.GetConfigCommand(GetLogger<Postgres.Server.GetConfigCommand>()));
+        server.AddCommand("get-param", new Postgres.Server.GetParamCommand(GetLogger<Postgres.Server.GetParamCommand>()));
     }
 
     private void ConfigureCommands(CommandGroup group)

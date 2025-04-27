@@ -1,0 +1,3 @@
+namespace AzureMcp.Arguments.Postgres.Table;
+
+public class TableListArguments : BaseTableArguments;
