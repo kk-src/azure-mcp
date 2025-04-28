@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Postgres.Database;
 using Microsoft.Extensions.Logging;
