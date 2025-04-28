@@ -65,8 +65,8 @@ public class CommandFactory
         RegisterToolsCommands();
         RegisterExtensionCommands();
         RegisterSubscriptionCommands();
-        RegisterGroupCommands();        
-        RegisterMcpServerCommands();        
+        RegisterGroupCommands();
+        RegisterMcpServerCommands();
     }
 
     private void RegisterCosmosCommands()
@@ -89,7 +89,8 @@ public class CommandFactory
         var cosmosItem = new CommandGroup("item", "Cosmos DB item operations - Commands for querying, creating, updating, and deleting document within your Cosmos DB containers.");
         cosmosContainer.AddSubGroup(cosmosItem);
 
-        // Register Cosmos commands        
+        // Register Cosmos commands
+        databases.AddCommand("list", new DatabaseListCommand(GetLogger<DatabaseListCommand>()));
         cosmosContainer.AddCommand("list", new Cosmos.ContainerListCommand(GetLogger<Cosmos.ContainerListCommand>()));
         cosmosAccount.AddCommand("list", new Cosmos.AccountListCommand(GetLogger<Cosmos.AccountListCommand>()));
         cosmosItem.AddCommand("query", new ItemQueryCommand(GetLogger<ItemQueryCommand>()));
