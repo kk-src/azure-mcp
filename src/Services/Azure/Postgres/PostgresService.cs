@@ -15,7 +15,7 @@ namespace AzureMcp.Services.Azure.Postgres;
 
 public class PostgresService : IPostgresService
 {
-    public async Task<List<string>> ListDatabasesAsync(string subscriptionId, string resourceGroup, string server, string user)
+    public async Task<List<string>> ListDatabasesAsync(string subscriptionId, string resourceGroup, string user, string server)
     {
         var tokenCredential = new DefaultAzureCredential();
         var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(["https://ossrdbms-aad.database.windows.net/.default"]));
@@ -35,7 +35,7 @@ public class PostgresService : IPostgresService
         return dbs;
     }
 
-    public async Task<string> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string server, string user, string database, string query)
+    public async Task<string> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string query)
     {
         var tokenCredential = new DefaultAzureCredential();
         var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(["https://ossrdbms-aad.database.windows.net/.default"]));
@@ -62,7 +62,7 @@ public class PostgresService : IPostgresService
         return JsonSerializer.Serialize(new { columnNames, rows });
     }
 
-    public async Task<List<string>> ListTablesAsync(string subscriptionId, string resourceGroup, string server, string user, string database)
+    public async Task<List<string>> ListTablesAsync(string subscriptionId, string resourceGroup, string user, string server, string database)
     {
         var tokenCredential = new DefaultAzureCredential();
         var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(["https://ossrdbms-aad.database.windows.net/.default"]));
@@ -81,7 +81,7 @@ public class PostgresService : IPostgresService
         return tables;
     }
 
-    public async Task<List<string>> GetTableSchemaAsync(string subscriptionId, string resourceGroup, string server, string user, string database, string table)
+    public async Task<List<string>> GetTableSchemaAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string table)
     {
 
         var tokenCredential = new DefaultAzureCredential();
