@@ -4,11 +4,9 @@
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Postgres.Database;
 using Microsoft.Extensions.Logging;
-using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
 using ModelContextProtocol.Server;
 using AzureMcp.Services.Interfaces;
-using System.CommandLine;
 
 namespace AzureMcp.Commands.Postgres.Database;
 
