@@ -56,16 +56,11 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
 
-            var subscriptionId = args.Subscription ?? throw new ArgumentNullException(nameof(args.Subscription), "Subscription ID cannot be null.");
-            var resourceGroup = args.ResourceGroup ?? throw new ArgumentNullException(nameof(args.ResourceGroup), "Resource group cannot be null.");
-            var user = args.User ?? throw new ArgumentNullException(nameof(args.User), "User cannot be null.");
-            var server = args.Server ?? throw new ArgumentNullException(nameof(args.Server), "Server name cannot be null.");
-            var param = args.Param ?? throw new ArgumentNullException(nameof(args.Param), "Parameter cannot be null.");
-
-            var parameterValue = await pgService.GetServerParameterAsync(subscriptionId, resourceGroup, user, server, param);
+            args.Validate();
+            var parameterValue = await pgService.GetServerParameterAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Param!);
             if (string.IsNullOrEmpty(parameterValue))
             {
-                context.Response.Results = new { message = $"Parameter '{param}' not found." };
+                context.Response.Results = new { message = $"Parameter '{args.Param}' not found." };
                 return context.Response;
             }
 

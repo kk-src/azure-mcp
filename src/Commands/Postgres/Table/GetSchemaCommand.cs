@@ -55,14 +55,9 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var subscriptionId = args.Subscription ?? throw new ArgumentNullException(nameof(args.Subscription), "Subscription ID cannot be null.");
-            var resourceGroup = args.ResourceGroup ?? throw new ArgumentNullException(nameof(args.ResourceGroup), "Resource group cannot be null.");
-            var server = args.Server ?? throw new ArgumentNullException(nameof(args.Server), "Server name cannot be null.");
-            var user = args.User ?? throw new ArgumentNullException(nameof(args.User), "User cannot be null.");
-            var database = args.Database ?? throw new ArgumentNullException(nameof(args.Database), "Database name cannot be null.");
-            var table = args.Table ?? throw new ArgumentNullException(nameof(args.Table), "Table name cannot be null.");
 
-            var schema = await pgService.GetTableSchemaAsync(subscriptionId, resourceGroup, server, user, database, table);
+
+            var schema = await pgService.GetTableSchemaAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Table!);
             if (schema == null)
             {
                 context.Response.Results = new { message = "No schema found." };

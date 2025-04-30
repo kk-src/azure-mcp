@@ -31,12 +31,9 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
 
-            var subscriptionId = args.Subscription ?? throw new ArgumentNullException(nameof(args.Subscription), "Subscription ID cannot be null.");
-            var resourceGroup = args.ResourceGroup ?? throw new ArgumentNullException(nameof(args.ResourceGroup), "Resource group cannot be null.");
-            var serverName = args.Server ?? throw new ArgumentNullException(nameof(args.Server), "Server name cannot be null.");
-            var user = args.User ?? throw new ArgumentNullException(nameof(args.User), "User cannot be null.");
+            args.Validate();
 
-            var databases = await pgService.ListDatabasesAsync(args.Subscription, resourceGroup, args.Server, args.User);
+            var databases = await pgService.ListDatabasesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
             if (databases == null || databases.Count == 0)
             {
                 context.Response.Results = new { message = "No databases found." };

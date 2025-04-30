@@ -56,14 +56,10 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
 
 
-            var subscriptionId = args.Subscription ?? throw new ArgumentNullException(nameof(args.Subscription), "Subscription ID cannot be null.");
-            var resourceGroup = args.ResourceGroup ?? throw new ArgumentNullException(nameof(args.ResourceGroup), "Resource group cannot be null.");
-            var serverName = args.Server ?? throw new ArgumentNullException(nameof(args.Server), "Server name cannot be null.");
-            var user = args.User ?? throw new ArgumentNullException(nameof(args.User), "User cannot be null.");
-            var databaseName = args.Database ?? throw new ArgumentNullException(nameof(args.Database), "Database name cannot be null.");
-            var query = args.Query ?? throw new ArgumentNullException(nameof(args.Query), "Query cannot be null.");
 
-            var result = await pgService.ExecuteQueryAsync(args.Subscription, args.ResourceGroup, args.Server, args.User, args.Database, args.Query);
+            args.Validate();
+
+            var result = await pgService.ExecuteQueryAsync(args.Subscription!, args.ResourceGroup!, args.Server!, args.User!, args.Database!, args.Query!);
             context.Response.Results = new { QueryResult = result };
         }
         catch (Exception ex)

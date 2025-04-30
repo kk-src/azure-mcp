@@ -29,13 +29,9 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var subscriptionId = args.Subscription ?? throw new ArgumentNullException(nameof(args.Subscription), "Subscription ID cannot be null.");
-            var resourceGroup = args.ResourceGroup ?? throw new ArgumentNullException(nameof(args.ResourceGroup), "Resource group cannot be null.");
-            var server = args.Server ?? throw new ArgumentNullException(nameof(args.Server), "Server name cannot be null.");
-            var user = args.User ?? throw new ArgumentNullException(nameof(args.User), "User cannot be null.");
-            var database = args.Database ?? throw new ArgumentNullException(nameof(args.Database), "Database name cannot be null.");
 
-            var tables = await pgService.ListTablesAsync(args.Subscription, resourceGroup, server, user, database);
+            args.Validate();
+            var tables = await pgService.ListTablesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!);
             if (tables == null || tables.Count == 0)
             {
                 context.Response.Results = new { message = "No tables found." };
