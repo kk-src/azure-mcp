@@ -19,10 +19,9 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
-
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
@@ -40,7 +39,7 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred retrieving server configuration. Server: {Server}.", args.Server);
+            _logger.LogError(ex, "An exception occurred retrieving server configuration.");
             HandleException(context.Response, ex);
         }
 

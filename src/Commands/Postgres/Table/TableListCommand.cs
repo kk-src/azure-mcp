@@ -19,18 +19,17 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
-
         try
         {
+            var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-
-            args.Validate();
             var tables = await pgService.ListTablesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!);
             if (tables == null || tables.Count == 0)
             {
@@ -41,7 +40,7 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred listing tables. Server: {Server}, Database: {Database}.", args.Server, args.Database);
+            _logger.LogError(ex, "An exception occurred listing tables.");
             HandleException(context.Response, ex);
         }
         return context.Response;

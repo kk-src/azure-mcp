@@ -28,10 +28,7 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
     protected override void RegisterArguments()
     {
         base.RegisterArguments();
-        AddArgument(ArgumentBuilder<DatabaseQueryArguments>
-            .Create(ArgumentDefinitions.Postgres.Query.Name, ArgumentDefinitions.Postgres.Query.Description)
-            .WithValueAccessor(args => args.Query ?? string.Empty)
-            .WithIsRequired(true));
+        AddArgument(CreateQueryArgument());
     }
 
     protected override DatabaseQueryArguments BindArguments(ParseResult parseResult)
@@ -45,10 +42,9 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
-
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
@@ -69,4 +65,10 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
 
         return context.Response;
     }
+
+    private static ArgumentBuilder<DatabaseQueryArguments> CreateQueryArgument() =>
+        ArgumentBuilder<DatabaseQueryArguments>
+            .Create(ArgumentDefinitions.Postgres.Query.Name, ArgumentDefinitions.Postgres.Query.Description)
+            .WithValueAccessor(args => args.Query ?? string.Empty)
+            .WithIsRequired(true);
 }

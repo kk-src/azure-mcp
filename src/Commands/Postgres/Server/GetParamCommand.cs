@@ -29,10 +29,7 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
     protected override void RegisterArguments()
     {
         base.RegisterArguments();
-        AddArgument(ArgumentBuilder<GetParamArguments>
-            .Create(ArgumentDefinitions.Postgres.Param.Name, ArgumentDefinitions.Postgres.Param.Description)
-            .WithValueAccessor(args => args.Param ?? string.Empty)
-            .WithIsRequired(true));
+        AddArgument(CreateParamArgument());
     }
 
     protected override GetParamArguments BindArguments(ParseResult parseResult)
@@ -46,9 +43,9 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
@@ -68,9 +65,15 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred retrieving the parameter. Server: {Server}.", args.Server);
+            _logger.LogError(ex, "An exception occurred retrieving the parameter.");
             HandleException(context.Response, ex);
         }
         return context.Response;
     }
+
+    private static ArgumentBuilder<GetParamArguments> CreateParamArgument() =>
+        ArgumentBuilder<GetParamArguments>
+            .Create(ArgumentDefinitions.Postgres.Param.Name, ArgumentDefinitions.Postgres.Param.Description)
+            .WithValueAccessor(args => args.Param ?? string.Empty)
+            .WithIsRequired(true);
 }

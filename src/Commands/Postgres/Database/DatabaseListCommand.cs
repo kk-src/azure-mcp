@@ -20,10 +20,9 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
-
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
@@ -43,7 +42,7 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred listing databases. Server: {Server}.", args.Server);
+            _logger.LogError(ex, "An exception occurred listing databases.");
             HandleException(context.Response, ex);
         }
 

@@ -29,10 +29,7 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
     protected override void RegisterArguments()
     {
         base.RegisterArguments();
-        AddArgument(ArgumentBuilder<GetSchemaArguments>
-            .Create(ArgumentDefinitions.Postgres.Table.Name, ArgumentDefinitions.Postgres.Table.Description)
-            .WithValueAccessor(args => args.Table ?? string.Empty)
-            .WithIsRequired(true));
+        AddArgument(CreateTableArgument());
     }
 
     protected override GetSchemaArguments BindArguments(ParseResult parseResult)
@@ -46,9 +43,9 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
@@ -68,10 +65,16 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred retrieving the schema for table {Table}.", args.Table);
+            _logger.LogError(ex, "An exception occurred retrieving the schema for table");
             HandleException(context.Response, ex);
         }
 
         return context.Response;
     }
+
+    private static ArgumentBuilder<GetSchemaArguments> CreateTableArgument() =>
+        ArgumentBuilder<GetSchemaArguments>
+            .Create(ArgumentDefinitions.Postgres.Table.Name, ArgumentDefinitions.Postgres.Table.Description)
+            .WithValueAccessor(args => args.Table ?? string.Empty)
+            .WithIsRequired(true);
 }

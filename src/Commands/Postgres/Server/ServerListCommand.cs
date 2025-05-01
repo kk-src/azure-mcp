@@ -20,17 +20,16 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
-        var args = BindArguments(parseResult);
-
         try
         {
+            var args = BindArguments(parseResult);
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-    
+
             args.Validate();
             var servers = await pgService.ListServersAsync(args.Subscription!, args.ResourceGroup!, args.User!);
             if (servers == null || servers.Count == 0)
@@ -43,7 +42,7 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred listing servers. Subscription: {Subscription}.", args.Subscription);
+            _logger.LogError(ex, "An exception occurred listing servers");
             HandleException(context.Response, ex);
         }
 
