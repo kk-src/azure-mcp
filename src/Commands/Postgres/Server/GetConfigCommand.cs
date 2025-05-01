@@ -31,9 +31,9 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
             var config = await pgService.GetServerConfigAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
-            if (config == null)
+            if (config == null || config.Length == 0)
             {
-                context.Response.Results = new { message = "No configuration found." };
+                context.Response.Results = null;
                 return context.Response;
             }
             context.Response.Results = config;

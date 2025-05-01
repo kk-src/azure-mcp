@@ -34,15 +34,14 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
             var servers = await pgService.ListServersAsync(args.Subscription!, args.ResourceGroup!, args.User!);
             if (servers == null || servers.Count == 0)
             {
-                context.Response.Results = new { message = "No servers found." };
+                context.Response.Results = null;
                 return context.Response;
             }
-
             context.Response.Results = servers;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An exception occurred listing servers");
+            _logger.LogError(ex, "An exception occurred while listing servers");
             HandleException(context.Response, ex);
         }
 

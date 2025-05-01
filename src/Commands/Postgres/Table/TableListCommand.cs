@@ -33,7 +33,7 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
             var tables = await pgService.ListTablesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!);
             if (tables == null || tables.Count == 0)
             {
-                context.Response.Results = new { message = "No tables found." };
+                context.Response.Results = null;
                 return context.Response;
             }
             context.Response.Results = tables;

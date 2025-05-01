@@ -34,7 +34,7 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
             var databases = await pgService.ListDatabasesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
             if (databases == null || databases.Count == 0)
             {
-                context.Response.Results = new { message = "No databases found." };
+                context.Response.Results = null;
                 return context.Response;
             }
             context.Response.Results = databases;
@@ -44,7 +44,6 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
             _logger.LogError(ex, "An exception occurred listing databases.");
             HandleException(context.Response, ex);
         }
-
         return context.Response;
     }
 }

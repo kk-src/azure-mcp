@@ -57,7 +57,7 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
             var parameterValue = await pgService.GetServerParameterAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Param!);
             if (string.IsNullOrEmpty(parameterValue))
             {
-                context.Response.Results = new { message = $"Parameter '{args.Param}' not found." };
+                context.Response.Results = null;
                 return context.Response;
             }
 

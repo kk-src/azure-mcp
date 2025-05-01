@@ -140,9 +140,7 @@ public class PostgresService : IPostgresService
     {
         ResourceIdentifier resourceGroupId = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroup);
         var rg = _armClient.GetResourceGroupResource(resourceGroupId);
-
         var serverList = new List<string>();
-
         await foreach (PostgreSqlFlexibleServerResource server in rg.GetPostgreSqlFlexibleServers().GetAllAsync())
         {
             serverList.Add(server.Data.Name);
@@ -157,7 +155,6 @@ public class PostgresService : IPostgresService
         var rg = _armClient.GetResourceGroupResource(resourceGroupId);
         var pgServer = await rg.GetPostgreSqlFlexibleServerAsync(server);
         var pgServerData = pgServer.Value.Data;
-
         var result = new
         {
             server = new
@@ -182,19 +179,13 @@ public class PostgresService : IPostgresService
     {
         ResourceIdentifier resourceGroupId = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroup);
         var rg = _armClient.GetResourceGroupResource(resourceGroupId);
-
-        // Get the PostgreSQL Flexible Server
         var pgServer = await rg.GetPostgreSqlFlexibleServerAsync(server);
 
-        // Get the configuration parameter asynchronously
         var configResponse = await pgServer.Value.GetPostgreSqlFlexibleServerConfigurationAsync(param);
-
         if (configResponse?.Value?.Data == null)
         {
-            throw new ArgumentException($"Parameter '{param}' not found.");
+            throw new Exception($"Parameter '{param}' not found.");
         }
-
-        // Return the param value
         return configResponse.Value.Data.Value;
     }
 }
