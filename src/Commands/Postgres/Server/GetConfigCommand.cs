@@ -22,13 +22,14 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
         try
         {
             var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            args.Validate();
             var config = await pgService.GetServerConfigAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
             if (config == null)
             {
@@ -42,8 +43,6 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
             _logger.LogError(ex, "An exception occurred retrieving server configuration.");
             HandleException(context.Response, ex);
         }
-
-
         return context.Response;
     }
 }

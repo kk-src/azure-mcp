@@ -45,16 +45,14 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
         try
         {
             var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
+
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-
-
-
-            args.Validate();
-
             var result = await pgService.ExecuteQueryAsync(args.Subscription!, args.ResourceGroup!, args.Server!, args.User!, args.Database!, args.Query!);
             context.Response.Results = new { QueryResult = result };
         }

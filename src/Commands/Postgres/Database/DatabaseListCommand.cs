@@ -23,15 +23,14 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
         try
         {
             var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-
-            args.Validate();
-
             var databases = await pgService.ListDatabasesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
             if (databases == null || databases.Count == 0)
             {

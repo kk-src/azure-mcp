@@ -46,14 +46,14 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
         try
         {
             var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-
-
             var schema = await pgService.GetTableSchemaAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Table!);
             if (schema == null)
             {

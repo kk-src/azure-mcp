@@ -136,6 +136,21 @@ public class PostgresService : IPostgresService
         return schema;
     }
 
+    public async Task<List<string>> ListServersAsync(string subscriptionId, string resourceGroup, string user)
+    {
+        ResourceIdentifier resourceGroupId = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroup);
+        var rg = _armClient.GetResourceGroupResource(resourceGroupId);
+
+        var serverList = new List<string>();
+
+        await foreach (PostgreSqlFlexibleServerResource server in rg.GetPostgreSqlFlexibleServers().GetAllAsync())
+        {
+            serverList.Add(server.Data.Name);
+        }
+        return serverList;
+
+    }
+
     public async Task<string> GetServerConfigAsync(string subscriptionId, string resourceGroup, string user, string server)
     {
         ResourceIdentifier resourceGroupId = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroup);
@@ -181,20 +196,5 @@ public class PostgresService : IPostgresService
 
         // Return the param value
         return configResponse.Value.Data.Value;
-    }
-
-    public async Task<List<string>> ListServersAsync(string subscriptionId, string resourceGroup, string user)
-    {
-        ResourceIdentifier resourceGroupId = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroup);
-        var rg = _armClient.GetResourceGroupResource(resourceGroupId);
-
-        var serverList = new List<string>();
-
-        await foreach (PostgreSqlFlexibleServerResource server in rg.GetPostgreSqlFlexibleServers().GetAllAsync())
-        {
-            serverList.Add(server.Data.Name);
-        }
-        return serverList;
-
     }
 }

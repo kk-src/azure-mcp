@@ -46,14 +46,14 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
         try
         {
             var args = BindArguments(parseResult);
+            args.Validate();
+
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
             var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-
-            args.Validate();
             var parameterValue = await pgService.GetServerParameterAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Param!);
             if (string.IsNullOrEmpty(parameterValue))
             {
