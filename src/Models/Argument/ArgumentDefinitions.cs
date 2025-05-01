@@ -148,6 +148,60 @@ public static class ArgumentDefinitions
         );
     }
 
+    public static class Postgres
+    {
+        public const string UserName = "user";
+        public const string Password = "password";
+        public const string ServerName = "server";
+        public const string DatabaseName = "database";
+        public const string TableName = "table";
+        public const string QueryText = "query";
+        public const string ParamName = "param";
+
+        public static readonly ArgumentDefinition<string> User = new(
+            UserName,
+            "The user name to access PostgreSQL server.",
+            required: true
+        );
+
+        public static readonly ArgumentDefinition<string> Pass = new(
+            Password,
+            "The password to access PostgreSQL server.",
+            required: true
+        );
+
+        public static readonly ArgumentDefinition<string> Server = new(
+            ServerName,
+            "The PostgreSQL server to be accessed.",
+            required: false
+        );
+
+        public static readonly ArgumentDefinition<string> Database = new(
+            DatabaseName,
+            "The PostgreSQL database to be access.",
+            required: false,
+            defaultValue: "postgres"
+        );
+
+        public static readonly ArgumentDefinition<string> Table = new(
+            TableName,
+            "The PostgreSQL table to be access.",
+            required: false
+        );
+
+        public static readonly ArgumentDefinition<string> Query = new(
+            QueryText,
+            "Query to be executed against a PostgreSQL database.",
+            required: false
+        );
+
+        public static readonly ArgumentDefinition<string> Param = new(
+            ParamName,
+            "The PostgreSQL parameter to be accessed.",
+            required: false
+        );
+    }
+
     public static class Search
     {
         public const string ServiceName = "service-name";
