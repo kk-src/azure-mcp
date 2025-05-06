@@ -47,12 +47,5 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
         return context.Response;
     }
 
-    // For ServerListCommand, server is not required.
-    protected override ArgumentBuilder<ServerListArguments> CreateServerArgument() =>
-        ArgumentBuilder<ServerListArguments>
-            .Create(ArgumentDefinitions.Postgres.Server.Name, ArgumentDefinitions.Postgres.Server.Description)
-            .WithValueAccessor(args => args.Server ?? string.Empty)
-            .WithIsRequired(false);
-
     internal record ServerListCommandResult(List<string> Servers);
 }

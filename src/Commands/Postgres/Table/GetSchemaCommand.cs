@@ -12,10 +12,10 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Table;
 
-public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePostgresCommand<GetSchemaArguments>(logger)
+public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BaseDatabaseCommand<GetSchemaArguments>(logger)
 {
     private readonly Option<string> _tableOption = ArgumentDefinitions.Postgres.Table.ToOption();
-    protected override string GetCommandName() => "get-schema";
+    protected override string GetCommandName() => "schema";
 
     protected override string GetCommandDescription() =>
         "Retrieves the schema of a specified table in a PostgreSQL database.";
@@ -72,12 +72,6 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
         ArgumentBuilder<GetSchemaArguments>
             .Create(ArgumentDefinitions.Postgres.Table.Name, ArgumentDefinitions.Postgres.Table.Description)
             .WithValueAccessor(args => args.Table ?? string.Empty)
-            .WithIsRequired(true);
-
-    protected override ArgumentBuilder<GetSchemaArguments> CreateDatabaseArgument() =>
-        ArgumentBuilder<GetSchemaArguments>
-            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
-            .WithValueAccessor(args => args.Database ?? string.Empty)
             .WithIsRequired(true);
 
     internal record GetSchemaCommandResult(List<string> Schema);

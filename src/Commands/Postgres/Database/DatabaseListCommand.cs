@@ -10,7 +10,7 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Database;
 
-public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : BasePostgresCommand<DatabaseListArguments>(logger)
+public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : BaseServerCommand<DatabaseListArguments>(logger)
 {
 
     protected override string GetCommandName() => "list";
@@ -23,8 +23,6 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
         try
         {
             var args = BindArguments(parseResult);
-            //args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;

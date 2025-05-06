@@ -10,9 +10,9 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Server;
 
-public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePostgresCommand<GetConfigArguments>(logger)
+public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BaseServerCommand<GetConfigArguments>(logger)
 {
-    protected override string GetCommandName() => "get-config";
+    protected override string GetCommandName() => "config";
     protected override string GetCommandDescription() =>
         "Retrieve the configuration of a PostgreSQL server.";
 

@@ -12,10 +12,10 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Server;
 
-public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostgresCommand<GetParamArguments>(logger)
+public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BaseServerCommand<GetParamArguments>(logger)
 {
     private readonly Option<string> _paramOption = ArgumentDefinitions.Postgres.Param.ToOption();
-    protected override string GetCommandName() => "get-param";
+    protected override string GetCommandName() => "param";
 
     protected override string GetCommandDescription() =>
         "Retrieves a specific parameter of a PostgreSQL server.";
@@ -38,7 +38,6 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
         args.Param = parseResult.GetValueForOption(_paramOption);
         return args;
     }
-
 
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)

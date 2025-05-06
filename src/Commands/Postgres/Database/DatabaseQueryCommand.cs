@@ -12,7 +12,7 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Database;
 
-public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) : BasePostgresCommand<DatabaseQueryArguments>(logger)
+public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) : BaseDatabaseCommand<DatabaseQueryArguments>(logger)
 {
     private readonly Option<string> _queryOption = ArgumentDefinitions.Postgres.Query.ToOption();
     protected override string GetCommandName() => "query";
@@ -71,12 +71,6 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
         ArgumentBuilder<DatabaseQueryArguments>
             .Create(ArgumentDefinitions.Postgres.Query.Name, ArgumentDefinitions.Postgres.Query.Description)
             .WithValueAccessor(args => args.Query ?? string.Empty)
-            .WithIsRequired(true);
-
-    protected override ArgumentBuilder<DatabaseQueryArguments> CreateDatabaseArgument() =>
-        ArgumentBuilder<DatabaseQueryArguments>
-            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
-            .WithValueAccessor(args => args.Database ?? string.Empty)
             .WithIsRequired(true);
 
     internal record DatabaseQueryCommandResult(List<string> QueryResult);

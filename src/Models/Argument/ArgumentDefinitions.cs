@@ -172,25 +172,25 @@ public static class ArgumentDefinitions
         public static readonly ArgumentDefinition<string> Database = new(
             DatabaseName,
             "The PostgreSQL database to be access.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Table = new(
             TableName,
             "The PostgreSQL table to be access.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Query = new(
             QueryText,
             "Query to be executed against a PostgreSQL database.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Param = new(
             ParamName,
             "The PostgreSQL parameter to be accessed.",
-            required: false
+            required: true
         );
     }
 

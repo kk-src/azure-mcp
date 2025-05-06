@@ -12,7 +12,7 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Table;
 
-public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePostgresCommand<TableListArguments>(logger)
+public sealed class TableListCommand(ILogger<TableListCommand> logger) : BaseDatabaseCommand<TableListArguments>(logger)
 {
     protected override string GetCommandName() => "list";
     protected override string GetCommandDescription() => "Lists all tables in the PostgreSQL database.";
@@ -43,12 +43,6 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
         }
         return context.Response;
     }
-
-    protected override ArgumentBuilder<TableListArguments> CreateDatabaseArgument() =>
-        ArgumentBuilder<TableListArguments>
-            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
-            .WithValueAccessor(args => args.Database ?? string.Empty)
-            .WithIsRequired(true);
 
     internal record TableListCommandResult(List<string> Tables);
 }

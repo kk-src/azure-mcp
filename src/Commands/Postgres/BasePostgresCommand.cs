@@ -15,8 +15,6 @@ public abstract class BasePostgresCommand<
     : SubscriptionCommand<TArgs> where TArgs : BasePostgresArguments, new()
 {
     protected readonly Option<string> _userOption = ArgumentDefinitions.Postgres.User.ToOption();
-    protected readonly Option<string> _serverOption = ArgumentDefinitions.Postgres.Server.ToOption();
-    protected readonly Option<string> _databaseOption = ArgumentDefinitions.Postgres.Database.ToOption();
 
     protected readonly ILogger<BasePostgresCommand<TArgs>> _logger;
 
@@ -31,8 +29,6 @@ public abstract class BasePostgresCommand<
         base.RegisterOptions(command);
         command.AddOption(_resourceGroupOption);
         command.AddOption(_userOption);
-        command.AddOption(_serverOption);
-        command.AddOption(_databaseOption);
     }
 
     protected override void RegisterArguments()
@@ -40,8 +36,6 @@ public abstract class BasePostgresCommand<
         base.RegisterArguments();
         AddArgument(CreateResourceGroupArgument());
         AddArgument(CreateUserArgument());
-        AddArgument(CreateServerArgument());
-        AddArgument(CreateDatabaseArgument());
     }
 
     protected override TArgs BindArguments(ParseResult parseResult)
@@ -49,8 +43,6 @@ public abstract class BasePostgresCommand<
         var args = base.BindArguments(parseResult);
         args.ResourceGroup = parseResult.GetValueForOption(_resourceGroupOption);
         args.User = parseResult.GetValueForOption(_userOption);
-        args.Server = parseResult.GetValueForOption(_serverOption);
-        args.Database = parseResult.GetValueForOption(_databaseOption);
         return args;
     }
 
@@ -59,17 +51,4 @@ public abstract class BasePostgresCommand<
             .Create(ArgumentDefinitions.Postgres.User.Name, ArgumentDefinitions.Postgres.User.Description)
             .WithValueAccessor(args => args.User ?? string.Empty)
             .WithIsRequired(ArgumentDefinitions.Postgres.User.Required);
-
-    protected virtual ArgumentBuilder<TArgs> CreateServerArgument() =>
-        ArgumentBuilder<TArgs>
-            .Create(ArgumentDefinitions.Postgres.Server.Name, ArgumentDefinitions.Postgres.Server.Description)
-            .WithValueAccessor(args => args.Server ?? string.Empty)
-            .WithIsRequired(ArgumentDefinitions.Postgres.Server.Required);
-
-    protected virtual ArgumentBuilder<TArgs> CreateDatabaseArgument() =>
-       ArgumentBuilder<TArgs>
-           .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
-           .WithValueAccessor(args => args.Database ?? string.Empty)
-           .WithIsRequired(ArgumentDefinitions.Postgres.Database.Required);
-
 }
