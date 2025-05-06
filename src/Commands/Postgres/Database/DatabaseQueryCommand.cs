@@ -45,16 +45,18 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var result = await pgService.ExecuteQueryAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Query!);
-            context.Response.Results = new { QueryResult = result };
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            List<string> queryResult = await pgService.ExecuteQueryAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Query!);
+            context.Response.Results = queryResult?.Count > 0 ?
+                ResponseResult.Create(
+                    new DatabaseQueryCommandResult(queryResult),
+                    PostgresJsonContext.Default.DatabaseQueryCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -70,4 +72,12 @@ public sealed class DatabaseQueryCommand(ILogger<DatabaseQueryCommand> logger) :
             .Create(ArgumentDefinitions.Postgres.Query.Name, ArgumentDefinitions.Postgres.Query.Description)
             .WithValueAccessor(args => args.Query ?? string.Empty)
             .WithIsRequired(true);
+
+    protected override ArgumentBuilder<DatabaseQueryArguments> CreateDatabaseArgument() =>
+        ArgumentBuilder<DatabaseQueryArguments>
+            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
+            .WithValueAccessor(args => args.Database ?? string.Empty)
+            .WithIsRequired(true);
+
+    internal record DatabaseQueryCommandResult(List<string> QueryResult);
 }

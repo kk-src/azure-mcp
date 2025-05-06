@@ -3,16 +3,4 @@
 
 namespace AzureMcp.Arguments.Postgres.Database;
 
-public class DatabaseListArguments : BasePostgresArguments
-{
-    public void Validate()
-    {
-        ValidateProperties(
-        [
-            (Subscription, nameof(Subscription)),
-            (ResourceGroup, nameof(ResourceGroup)),
-            (User, nameof(User)),
-            (Server, nameof(Server))
-        ]);
-    }
-}
+public class DatabaseListArguments : BasePostgresArguments;

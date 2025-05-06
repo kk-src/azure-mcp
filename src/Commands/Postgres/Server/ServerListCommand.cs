@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.CommandLine.Parsing;
+using Azure.ResourceManager.Resources.Models;
 using AzureMcp.Arguments.Postgres.Server;
+using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -23,21 +25,18 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var servers = await pgService.ListServersAsync(args.Subscription!, args.ResourceGroup!, args.User!);
-            if (servers == null || servers.Count == 0)
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-            context.Response.Results = servers;
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            List<string> servers = await pgService.ListServersAsync(args.Subscription!, args.ResourceGroup!, args.User!);
+            context.Response.Results = servers?.Count > 0 ?
+                ResponseResult.Create(
+                    new ServerListCommandResult(servers),
+                    PostgresJsonContext.Default.ServerListCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -47,4 +46,13 @@ public sealed class ServerListCommand(ILogger<ServerListCommand> logger) : BaseP
 
         return context.Response;
     }
+
+    // For ServerListCommand, server is not required.
+    protected override ArgumentBuilder<ServerListArguments> CreateServerArgument() =>
+        ArgumentBuilder<ServerListArguments>
+            .Create(ArgumentDefinitions.Postgres.Server.Name, ArgumentDefinitions.Postgres.Server.Description)
+            .WithValueAccessor(args => args.Server ?? string.Empty)
+            .WithIsRequired(false);
+
+    internal record ServerListCommandResult(List<string> Servers);
 }

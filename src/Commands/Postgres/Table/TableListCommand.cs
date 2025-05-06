@@ -3,6 +3,7 @@
 
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Postgres.Table;
+using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -22,21 +23,18 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var tables = await pgService.ListTablesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!);
-            if (tables == null || tables.Count == 0)
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-            context.Response.Results = tables;
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            List<string> tables = await pgService.ListTablesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!);
+            context.Response.Results = tables?.Count > 0 ?
+                ResponseResult.Create(
+                    new TableListCommandResult(tables),
+                    PostgresJsonContext.Default.TableListCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -45,4 +43,12 @@ public sealed class TableListCommand(ILogger<TableListCommand> logger) : BasePos
         }
         return context.Response;
     }
+
+    protected override ArgumentBuilder<TableListArguments> CreateDatabaseArgument() =>
+        ArgumentBuilder<TableListArguments>
+            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
+            .WithValueAccessor(args => args.Database ?? string.Empty)
+            .WithIsRequired(true);
+
+    internal record TableListCommandResult(List<string> Tables);
 }

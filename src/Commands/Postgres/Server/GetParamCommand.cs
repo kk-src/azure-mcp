@@ -46,22 +46,19 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
 
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
             var parameterValue = await pgService.GetServerParameterAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Param!);
-            if (string.IsNullOrEmpty(parameterValue))
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-
-            context.Response.Results = parameterValue;
+            context.Response.Results = parameterValue?.Length > 0 ?
+                ResponseResult.Create(
+                    new GetParamCommandResult(parameterValue),
+                    PostgresJsonContext.Default.GetParamCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -76,4 +73,6 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
             .Create(ArgumentDefinitions.Postgres.Param.Name, ArgumentDefinitions.Postgres.Param.Description)
             .WithValueAccessor(args => args.Param ?? string.Empty)
             .WithIsRequired(true);
+
+    internal record GetParamCommandResult(string ParameterValue);
 }

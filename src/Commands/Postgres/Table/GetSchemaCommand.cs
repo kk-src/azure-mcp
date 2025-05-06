@@ -39,29 +39,25 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
         return args;
     }
 
-
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
 
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var schema = await pgService.GetTableSchemaAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Table!);
-            if (schema == null || schema.Count == 0)
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-
-            context.Response.Results = schema;
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            List<string> schema = await pgService.GetTableSchemaAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Database!, args.Table!);
+            context.Response.Results = schema?.Count > 0 ?
+                ResponseResult.Create(
+                    new GetSchemaCommandResult(schema),
+                    PostgresJsonContext.Default.GetSchemaCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -77,4 +73,12 @@ public sealed class GetSchemaCommand(ILogger<GetSchemaCommand> logger) : BasePos
             .Create(ArgumentDefinitions.Postgres.Table.Name, ArgumentDefinitions.Postgres.Table.Description)
             .WithValueAccessor(args => args.Table ?? string.Empty)
             .WithIsRequired(true);
+
+    protected override ArgumentBuilder<GetSchemaArguments> CreateDatabaseArgument() =>
+        ArgumentBuilder<GetSchemaArguments>
+            .Create(ArgumentDefinitions.Postgres.Database.Name, ArgumentDefinitions.Postgres.Database.Description)
+            .WithValueAccessor(args => args.Database ?? string.Empty)
+            .WithIsRequired(true);
+
+    internal record GetSchemaCommandResult(List<string> Schema);
 }

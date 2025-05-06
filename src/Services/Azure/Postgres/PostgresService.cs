@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Azure.Core;
 using Azure.Identity;
 using Azure.ResourceManager;
@@ -8,7 +11,6 @@ using Azure.ResourceManager.PostgreSql.FlexibleServers;
 using Azure.ResourceManager.Resources;
 using AzureMcp.Services.Interfaces;
 using Npgsql;
-using System.Text.Json;
 
 namespace AzureMcp.Services.Azure.Postgres;
 
@@ -70,7 +72,7 @@ public class PostgresService : IPostgresService
         return dbs;
     }
 
-    public async Task<string> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string query)
+    public async Task<List<string>> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string query)
     {
         var accessToken = await GetAccessTokenAsync();
 
@@ -82,19 +84,22 @@ public class PostgresService : IPostgresService
         await using var command = new NpgsqlCommand(query, connection);
         await using var reader = await command.ExecuteReaderAsync();
 
+        var rows = new List<string>();
+
         var columnNames = Enumerable.Range(0, reader.FieldCount)
                                .Select(reader.GetName)
                                .ToArray();
-        var rows = new List<object?[]>();
+        rows.Add(string.Join(", ", columnNames));
         while (await reader.ReadAsync())
         {
-            var row = Enumerable.Range(0, reader.FieldCount)
-                                .Select(i => reader.IsDBNull(i) ? null : reader.GetValue(i))
-                                .ToArray();
-            rows.Add(row);
+            var row = new List<string>();
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                row.Add(reader[i]?.ToString() ?? "NULL");
+            }
+            rows.Add(string.Join(", ", row));
         }
-
-        return JsonSerializer.Serialize(new { columnNames, rows });
+        return rows;
     }
 
     public async Task<List<string>> ListTablesAsync(string subscriptionId, string resourceGroup, string user, string server, string database)
@@ -154,24 +159,14 @@ public class PostgresService : IPostgresService
         var rg = _armClient.GetResourceGroupResource(resourceGroupId);
         var pgServer = await rg.GetPostgreSqlFlexibleServerAsync(server);
         var pgServerData = pgServer.Value.Data;
-        var result = new
-        {
-            server = new
-            {
-                name = pgServerData.Name,
-                location = pgServerData.Location,
-                version = pgServerData.Version,
-                sku = pgServerData.Sku?.Name,
-                storage_profile = new
-                {
-                    storage_size_gb = pgServerData.Storage?.StorageSizeInGB,
-                    backup_retention_days = pgServerData.Backup?.BackupRetentionDays,
-                    geo_redundant_backup = pgServerData.Backup?.GeoRedundantBackup
-                }
-            }
-        };
-
-        return JsonSerializer.Serialize(result);
+        var result = $"Server Name: {pgServerData.Name}\n" +
+                 $"Location: {pgServerData.Location}\n" +
+                 $"Version: {pgServerData.Version}\n" +
+                 $"SKU: {pgServerData.Sku?.Name}\n" +
+                 $"Storage Size (GB): {pgServerData.Storage?.StorageSizeInGB}\n" +
+                 $"Backup Retention Days: {pgServerData.Backup?.BackupRetentionDays}\n" +
+                 $"Geo-Redundant Backup: {pgServerData.Backup?.GeoRedundantBackup}";
+        return result;
     }
 
     public async Task<string> GetServerParameterAsync(string subscriptionId, string resourceGroup, string user, string server, string param)
