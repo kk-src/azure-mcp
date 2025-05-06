@@ -150,8 +150,7 @@ public static class ArgumentDefinitions
 
     public static class Postgres
     {
-        public const string UserName = "user";
-        public const string Password = "password";
+        public const string UserName = "user-name";
         public const string ServerName = "server";
         public const string DatabaseName = "database";
         public const string TableName = "table";
@@ -164,41 +163,34 @@ public static class ArgumentDefinitions
             required: true
         );
 
-        public static readonly ArgumentDefinition<string> Pass = new(
-            Password,
-            "The password to access PostgreSQL server.",
-            required: true
-        );
-
         public static readonly ArgumentDefinition<string> Server = new(
             ServerName,
             "The PostgreSQL server to be accessed.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Database = new(
             DatabaseName,
             "The PostgreSQL database to be access.",
-            required: false,
-            defaultValue: "postgres"
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Table = new(
             TableName,
             "The PostgreSQL table to be access.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Query = new(
             QueryText,
             "Query to be executed against a PostgreSQL database.",
-            required: false
+            required: true
         );
 
         public static readonly ArgumentDefinition<string> Param = new(
             ParamName,
             "The PostgreSQL parameter to be accessed.",
-            required: false
+            required: true
         );
     }
 

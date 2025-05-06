@@ -1,13 +1,14 @@
+using System.CommandLine;
+using System.CommandLine.Parsing;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using AzureMcp.Commands.Postgres.Table;
+using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using System.CommandLine.Parsing;
-using System.Text.Json;
 using Xunit;
-using AzureMcp.Models.Command;
-using System.CommandLine;
 
 namespace AzureMcp.Tests.Commands.Postgres.Table;
 
@@ -35,12 +36,19 @@ public class TableListCommandTests
         _postgresService.ListTablesAsync("sub123", "rg1", "user1", "server1", "db123").Returns(expectedTables);
 
         var command = new TableListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123", "--resource-group", "rg1", "--user", "user1", "--server", "server1", "--database", "db123"]);
+        var args = command.GetCommand().Parse(["--subscription", "sub123", "--resource-group", "rg1", "--user-name", "user1", "--server", "server1", "--database", "db123"]);
         var context = new CommandContext(_serviceProvider);
         var response = await command.ExecuteAsync(context, args);
 
         Assert.NotNull(response);
-        Assert.Equal(expectedTables, response.Results);
+        Assert.Equal(200, response.Status);
+        Assert.Equal("Success", response.Message);
+        Assert.NotNull(response.Results);
+
+        var json = JsonSerializer.Serialize(response.Results);
+        var result = JsonSerializer.Deserialize<TableListResult>(json);
+        Assert.NotNull(result);
+        Assert.Equal(expectedTables, result.Tables);
     }
 
     [Fact]
@@ -49,11 +57,45 @@ public class TableListCommandTests
         _postgresService.ListTablesAsync("sub123", "rg1", "user1", "server1", "db123").Returns([]);
 
         var command = new TableListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123", "--resource-group", "rg1", "--user", "user1", "--server", "server1", "--database", "db123"]);
+        var args = command.GetCommand().Parse(["--subscription", "sub123", "--resource-group", "rg1", "--user-name", "user1", "--server", "server1", "--database", "db123"]);
         var context = new CommandContext(_serviceProvider);
         var response = await command.ExecuteAsync(context, args);
 
         Assert.NotNull(response);
+        Assert.Equal(200, response.Status);
+        Assert.Equal("Success", response.Message);
         Assert.Null(response.Results);
+    }
+
+    [Theory]
+    [InlineData("--subscription")]
+    [InlineData("--resource-group")]
+    [InlineData("--user-name")]
+    [InlineData("--server")]
+    [InlineData("--database")]
+    public async Task ExecuteAsync_ReturnsError_WhenParameterIsMissing(string missingParameter)
+    {
+        var command = new TableListCommand(_logger);
+        var args = command.GetCommand().Parse(new string[]
+        {
+            missingParameter == "--subscription" ? "" : "--subscription", "sub123",
+            missingParameter == "--resource-group" ? "" : "--resource-group", "rg1",
+            missingParameter == "--user-name" ? "" : "--user-name", "user1",
+            missingParameter == "--server" ? "" : "--server", "server123",
+            missingParameter == "--database" ? "" : "--database", "db123"
+        });
+
+        var context = new CommandContext(_serviceProvider);
+        var response = await command.ExecuteAsync(context, args);
+
+        Assert.NotNull(response);
+        Assert.Equal(400, response.Status);
+        Assert.Equal($"Missing required arguments: {missingParameter.TrimStart('-')}", response.Message);
+    }
+
+    private class TableListResult
+    {
+        [JsonPropertyName("Tables")]
+        public List<string> Tables { get; set; } = [];
     }
 }

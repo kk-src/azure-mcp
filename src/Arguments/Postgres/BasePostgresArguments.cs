@@ -1,22 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json.Serialization;
+using AzureMcp.Models.Argument;
+
 namespace AzureMcp.Arguments.Postgres;
 
 public class BasePostgresArguments : SubscriptionArguments
 {
+    [JsonPropertyName(ArgumentDefinitions.Postgres.UserName)]
     public string? User { get; set; }
-    public string? Server { get; set; }
-    public string? Database { get; set; }
 
-    protected static void ValidateProperties((string? Property, string Name)[] properties)
-    {
-        foreach (var (property, name) in properties)
-        {
-            if (string.IsNullOrEmpty(property))
-            {
-                throw new ArgumentNullException(name, $"{name} cannot be null or empty.");
-            }
-        }
-    }
+    [JsonPropertyName(ArgumentDefinitions.Postgres.ServerName)]
+    public string? Server { get; set; }
+
+    [JsonPropertyName(ArgumentDefinitions.Postgres.DatabaseName)]
+    public string? Database { get; set; }
 }

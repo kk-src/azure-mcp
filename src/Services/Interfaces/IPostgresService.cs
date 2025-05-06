@@ -8,7 +8,7 @@ namespace AzureMcp.Services.Interfaces;
 public interface IPostgresService
 {
     Task<List<string>> ListDatabasesAsync(string subscriptionId, string resourceGroup, string user, string server);
-    Task<string> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string query);
+    Task<List<string>> ExecuteQueryAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string query);
 
     Task<List<string>> ListTablesAsync(string subscriptionId, string resourceGroup, string user, string server, string database);
     Task<List<string>> GetTableSchemaAsync(string subscriptionId, string resourceGroup, string user, string server, string database, string table);

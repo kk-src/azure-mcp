@@ -10,9 +10,9 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Server;
 
-public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePostgresCommand<GetConfigArguments>(logger)
+public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BaseServerCommand<GetConfigArguments>(logger)
 {
-    protected override string GetCommandName() => "get-config";
+    protected override string GetCommandName() => "config";
     protected override string GetCommandDescription() =>
         "Retrieve the configuration of a PostgreSQL server.";
 
@@ -22,21 +22,18 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
             var config = await pgService.GetServerConfigAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
-            if (config == null || config.Length == 0)
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-            context.Response.Results = config;
+            context.Response.Results = config?.Length > 0 ?
+                ResponseResult.Create(
+                    new GetConfigCommandResult(config),
+                    PostgresJsonContext.Default.GetConfigCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -45,4 +42,5 @@ public sealed class GetConfigCommand(ILogger<GetConfigCommand> logger) : BasePos
         }
         return context.Response;
     }
+    internal record GetConfigCommandResult(string Configuration);
 }

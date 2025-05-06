@@ -3,14 +3,14 @@
 
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Postgres.Database;
-using Microsoft.Extensions.Logging;
 using AzureMcp.Models.Command;
-using ModelContextProtocol.Server;
 using AzureMcp.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Database;
 
-public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : BasePostgresCommand<DatabaseListArguments>(logger)
+public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : BaseServerCommand<DatabaseListArguments>(logger)
 {
 
     protected override string GetCommandName() => "list";
@@ -23,21 +23,18 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
-
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
-            var databases = await pgService.ListDatabasesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
-            if (databases == null || databases.Count == 0)
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-            context.Response.Results = databases;
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            List<string> databases = await pgService.ListDatabasesAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!);
+            context.Response.Results = databases?.Count > 0 ?
+                ResponseResult.Create(
+                    new DatabaseListCommandResult(databases),
+                    PostgresJsonContext.Default.DatabaseListCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -46,4 +43,5 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
         }
         return context.Response;
     }
+    internal record DatabaseListCommandResult(List<string> Databases);
 }

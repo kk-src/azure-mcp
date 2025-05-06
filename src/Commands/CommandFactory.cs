@@ -114,7 +114,7 @@ public class CommandFactory
 
     private void RegisterPostgresCommands()
     {
-        var pg = new CommandGroup("pg", "PostgreSQL operations - Commands for listing and managing Azure Database for PostgreSQL - Flexible server.");
+        var pg = new CommandGroup("postgres", "PostgreSQL operations - Commands for listing and managing Azure Database for PostgreSQL - Flexible server.");
         _rootGroup.AddSubGroup(pg);
 
         var database = new CommandGroup("database", "PostgreSQL database operations");
@@ -125,13 +125,13 @@ public class CommandFactory
         var table = new CommandGroup("table", "PostgreSQL table operations");
         pg.AddSubGroup(table);
         table.AddCommand("list", new Postgres.Table.TableListCommand(GetLogger<Postgres.Table.TableListCommand>()));
-        table.AddCommand("get-schema", new Postgres.Table.GetSchemaCommand(GetLogger<Postgres.Table.GetSchemaCommand>()));
+        table.AddCommand("schema", new Postgres.Table.GetSchemaCommand(GetLogger<Postgres.Table.GetSchemaCommand>()));
 
         var server = new CommandGroup("server", "PostgreSQL server operations");
         pg.AddSubGroup(server);
         server.AddCommand("list", new Postgres.Server.ServerListCommand(GetLogger<Postgres.Server.ServerListCommand>()));
-        server.AddCommand("get-config", new Postgres.Server.GetConfigCommand(GetLogger<Postgres.Server.GetConfigCommand>()));
-        server.AddCommand("get-param", new Postgres.Server.GetParamCommand(GetLogger<Postgres.Server.GetParamCommand>()));
+        server.AddCommand("config", new Postgres.Server.GetConfigCommand(GetLogger<Postgres.Server.GetConfigCommand>()));
+        server.AddCommand("param", new Postgres.Server.GetParamCommand(GetLogger<Postgres.Server.GetParamCommand>()));
     }
 
     private void RegisterStorageCommands()

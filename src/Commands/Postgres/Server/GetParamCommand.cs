@@ -12,10 +12,10 @@ using ModelContextProtocol.Server;
 
 namespace AzureMcp.Commands.Postgres.Server;
 
-public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostgresCommand<GetParamArguments>(logger)
+public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BaseServerCommand<GetParamArguments>(logger)
 {
     private readonly Option<string> _paramOption = ArgumentDefinitions.Postgres.Param.ToOption();
-    protected override string GetCommandName() => "get-param";
+    protected override string GetCommandName() => "param";
 
     protected override string GetCommandDescription() =>
         "Retrieves a specific parameter of a PostgreSQL server.";
@@ -39,29 +39,25 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
         return args;
     }
 
-
     [McpServerTool(Destructive = false, ReadOnly = true)]
     public override async Task<CommandResponse> ExecuteAsync(CommandContext context, ParseResult parseResult)
     {
         try
         {
             var args = BindArguments(parseResult);
-            args.Validate();
 
             if (!await ProcessArguments(context, args))
             {
                 return context.Response;
             }
 
-            var pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
+            IPostgresService pgService = context.GetService<IPostgresService>() ?? throw new InvalidOperationException("PostgreSQL service is not available.");
             var parameterValue = await pgService.GetServerParameterAsync(args.Subscription!, args.ResourceGroup!, args.User!, args.Server!, args.Param!);
-            if (string.IsNullOrEmpty(parameterValue))
-            {
-                context.Response.Results = null;
-                return context.Response;
-            }
-
-            context.Response.Results = parameterValue;
+            context.Response.Results = parameterValue?.Length > 0 ?
+                ResponseResult.Create(
+                    new GetParamCommandResult(parameterValue),
+                    PostgresJsonContext.Default.GetParamCommandResult) :
+                null;
         }
         catch (Exception ex)
         {
@@ -76,4 +72,6 @@ public sealed class GetParamCommand(ILogger<GetParamCommand> logger) : BasePostg
             .Create(ArgumentDefinitions.Postgres.Param.Name, ArgumentDefinitions.Postgres.Param.Description)
             .WithValueAccessor(args => args.Param ?? string.Empty)
             .WithIsRequired(true);
+
+    internal record GetParamCommandResult(string ParameterValue);
 }
